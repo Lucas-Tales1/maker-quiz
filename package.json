@@ -1,0 +1,20 @@
+{
+  "name": "maker-quiz",
+  "version": "1.0.0",
+  "description": "Aplicação web de quiz interativo, desenvolvida para o Laboratório CNAT Maker, com objetivo de estudar e praticar conceitos da disciplina Aplicações com Interfaces Ricas.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lucas-Tales1/maker-quiz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lucas-Tales1/maker-quiz/issues"
+  },
+  "homepage": "https://github.com/Lucas-Tales1/maker-quiz#readme"
+}
