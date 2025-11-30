@@ -21,7 +21,6 @@ export const QuestionCrud: React.FC = () => {
     respostaCorreta: 0,
   });
 
-  // Carrega dados do service ao iniciar
   useEffect(() => {
     setQuestions(QuestionService.getAll());
   }, []);
