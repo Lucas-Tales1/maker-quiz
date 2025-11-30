@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { QuestionService } from '../services/QuestionService';
+import { Question } from '../models/Question';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
+import { Button } from 'primereact/button';
 import { Tag } from 'primereact/tag';
-import { Question } from '../models/Question';
 import { AppButton } from './AppButton';
 import { CardContainer } from './CardContainer';
-import { Button } from 'primereact/button';
 
 export const QuestionCrud: React.FC = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -20,6 +21,11 @@ export const QuestionCrud: React.FC = () => {
     respostaCorreta: 0,
   });
 
+  // Carrega dados do service ao iniciar
+  useEffect(() => {
+    setQuestions(QuestionService.getAll());
+  }, []);
+
   const openNew = () => {
     setCurrent({ id: 0, pergunta: '', opcoes: ['', '', '', ''], respostaCorreta: 0 });
     setDialogVisible(true);
@@ -28,11 +34,16 @@ export const QuestionCrud: React.FC = () => {
   const save = () => {
     if (current.pergunta.trim() === '') return;
 
+    let updatedList;
+
     if (current.id === 0) {
-      setQuestions([...questions, { ...current, id: questions.length + 1 }]);
+      QuestionService.create(current);
     } else {
-      setQuestions(questions.map((q) => (q.id === current.id ? current : q)));
+      QuestionService.update(current);
     }
+
+    updatedList = QuestionService.getAll();
+    setQuestions(updatedList);
     setDialogVisible(false);
   };
 
@@ -42,7 +53,8 @@ export const QuestionCrud: React.FC = () => {
   };
 
   const remove = (q: Question) => {
-    setQuestions(questions.filter((item) => item.id !== q.id));
+    QuestionService.remove(q.id);
+    setQuestions(QuestionService.getAll());
   };
 
   const detailBody = (q: Question) => (
@@ -53,7 +65,7 @@ export const QuestionCrud: React.FC = () => {
     />
   );
 
-  return (
+return (
     <div className="p-6 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
       <div className="max-w-6xl mx-auto space-y-6">
         <CardContainer title="Gerenciar Perguntas do Quiz">
@@ -189,3 +201,4 @@ export const QuestionCrud: React.FC = () => {
     </div>
   );
 };
+
