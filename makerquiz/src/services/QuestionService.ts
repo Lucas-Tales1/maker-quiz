@@ -1,5 +1,3 @@
-// src/services/QuestionService.ts
-
 import { Question } from "../models/Question";
 
 const STORAGE_KEY = "questions_data";
