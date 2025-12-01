@@ -1,86 +1,135 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { QuestionService } from "../services/QuestionService";
+import { Question } from "../models/Question";
 import { CrudButton } from "../components/CrudButton";
 
-export const QuestionForm = ({ mode }: { mode: "create" | "edit" }) => {
-    const navigate = useNavigate();
-    const { state } = useLocation();
+interface Props {
+  mode: "create" | "edit";
+}
 
-    const [pergunta, setPergunta] = useState(state?.pergunta || "");
-    const [opcoes, setOpcoes] = useState(state?.opcoes || ["", "", "", ""]);
-    const [respostaCorreta, setRespostaCorreta] = useState(state?.respostaCorreta ?? 0);
+export const QuestionForm = ({ mode }: Props) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-    const save = () => {
-        if (mode === "create") {
-            QuestionService.create({
-                id: Date.now(),
-                pergunta,
-                opcoes,
-                respostaCorreta,
-            });
-        } else {
-            QuestionService.update({
-                id: state.id,
-                pergunta,
-                opcoes,
-                respostaCorreta,
-            });
+  const stateQuestion = location.state as Question | undefined;
+
+  const [pergunta, setPergunta] = useState("");
+  const [opcoes, setOpcoes] = useState<string[]>(["", "", "", ""]);
+  const [respostaCorreta, setRespostaCorreta] = useState<number>(0);
+
+  useEffect(() => {
+    if (mode === "edit" && id) {
+      const load = async () => {
+        const q =
+          stateQuestion ||
+          (await QuestionService.getById(Number(id)));
+
+        if (q) {
+          setPergunta(q.pergunta);
+          setOpcoes(q.opcoes);
+          setRespostaCorreta(q.respostaCorreta);
         }
+      };
 
-        navigate("/questions");
-    };
+      load();
+    }
+  }, [mode, id, stateQuestion]);
 
-    return (
-        <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-xl">
-            <h1 className="text-2xl font-semibold mb-4">
-                {mode === "create" ? "Criar Pergunta" : "Editar Pergunta"}
-            </h1>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-            <label className="block mb-3">
-                <span className="font-medium">Pergunta:</span>
-                <input
-                    className="w-full border rounded p-2 mt-1"
-                    value={pergunta}
-                    onChange={(e) => setPergunta(e.target.value)}
-                />
-            </label>
+    if (!pergunta.trim()) {
+      alert("A pergunta não pode ser vazia!");
+      return;
+    }
 
-            <div className="mb-4">
-                <span className="font-medium">Opções:</span>
+    if (opcoes.some((op) => !op.trim())) {
+      alert("Todas as opções devem ser preenchidas!");
+      return;
+    }
 
-                {opcoes.map((op: string, i: number) => (
-                    <input
-                        key={i}
-                        value={op}
-                        onChange={(e) => {
-                            const updated = [...opcoes];
-                            updated[i] = e.target.value;
-                            setOpcoes(updated);
-                        }}
-                        className="w-full border rounded p-2 mt-2"
-                    />
-                ))}
+    if (mode === "create") {
+      await QuestionService.create({
+        pergunta,
+        opcoes,
+        respostaCorreta,
+      });
+    } else if (mode === "edit" && id) {
+      await QuestionService.update({
+        id: Number(id),
+        pergunta,
+        opcoes,
+        respostaCorreta,
+      });
+    }
 
-            </div>
+    navigate("/questions");
+  };
 
-            <label className="block mb-4">
-                <span className="font-medium">Resposta Correta (0-3):</span>
-                <input
-                    type="number"
-                    className="w-full border rounded p-2 mt-1"
-                    value={respostaCorreta}
-                    min={0}
-                    max={3}
-                    onChange={(e) => setRespostaCorreta(Number(e.target.value))}
-                />
-            </label>
+  return (
+    <div className="max-w-xl mx-auto mt-10 p-6 bg-white shadow rounded">
+      <h1 className="text-2xl font-bold mb-4">
+        {mode === "create" ? "Criar Pergunta" : "Editar Pergunta"}
+      </h1>
 
-            <CrudButton
-                label={mode === "create" ? "Cadastrar" : "Salvar Alterações"}
-                variant="create"
-                onClick={save}
-            />
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div>
+          <label className="font-semibold">Pergunta:</label>
+          <input
+            className="w-full p-2 border rounded mt-1"
+            value={pergunta}
+            onChange={(e) => setPergunta(e.target.value)}
+          />
         </div>
-    );
+
+        <div>
+          <label className="font-semibold">Opções:</label>
+          {opcoes.map((op, idx) => (
+            <input
+              key={idx}
+              className="w-full p-2 border rounded mt-2"
+              value={op}
+              onChange={(e) => {
+                const newOp = [...opcoes];
+                newOp[idx] = e.target.value;
+                setOpcoes(newOp);
+              }}
+              placeholder={`Opção ${idx + 1}`}
+            />
+          ))}
+        </div>
+
+        <div>
+          <label className="font-semibold block">Resposta Correta:</label>
+          <select
+            className="w-full p-2 border rounded mt-1"
+            value={respostaCorreta}
+            onChange={(e) => setRespostaCorreta(Number(e.target.value))}
+          >
+            {opcoes.map((_, idx) => (
+              <option key={idx} value={idx}>
+                Opção {idx + 1}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex gap-3 justify-between pt-4">
+          <CrudButton
+            label={mode === "create" ? "Criar" : "Salvar Alterações"}
+            variant="create"
+            onClick={() => null}
+          />
+
+          <CrudButton
+            label="Voltar"
+            variant="view"
+            onClick={() => navigate("/questions")}
+          />
+        </div>
+      </form>
+    </div>
+  );
 };

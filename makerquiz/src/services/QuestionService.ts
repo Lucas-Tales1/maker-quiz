@@ -1,41 +1,40 @@
 import { Question } from "../models/Question";
 
-const STORAGE_KEY = "questions_data";
-
-function load(): Question[] {
-  const json = localStorage.getItem(STORAGE_KEY);
-  return json ? JSON.parse(json) : [];
-}
-
-function save(data: Question[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
+const API_URL = "http://localhost:8000/api/questions/";
 
 export const QuestionService = {
-  getAll(): Question[] {
-    return load();
+  async getAll(): Promise<Question[]> {
+    const res = await fetch(API_URL);
+    return await res.json();
   },
 
-  getById(id: number): Question | null {
-    return load().find(q => q.id === id) || null;
+  async getById(id: number): Promise<Question | null> {
+    const res = await fetch(`${API_URL}${id}/`);
+    if (!res.ok) return null;
+    return await res.json();
   },
 
-  create(question: Question): Question {
-    const data = load();
-    const newQuestion = { ...question, id: data.length + 1 };
-    data.push(newQuestion);
-    save(data);
-    return newQuestion;
+  async create(question: Omit<Question, "id">): Promise<Question> {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(question),
+    });
+    return await res.json();
   },
 
-  update(question: Question): Question {
-    const data = load().map(q => (q.id === question.id ? question : q));
-    save(data);
-    return question;
+  async update(question: Question): Promise<Question> {
+    const res = await fetch(`${API_URL}${question.id}/`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(question),
+    });
+    return await res.json();
   },
 
-  remove(id: number): void {
-    const data = load().filter(q => q.id !== id);
-    save(data);
-  }
+  async remove(id: number): Promise<void> {
+    await fetch(`${API_URL}${id}/`, {
+      method: "DELETE",
+    });
+  },
 };
