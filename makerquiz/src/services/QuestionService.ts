@@ -1,40 +1,30 @@
 import { Question } from "../models/Question";
+import { httpClient } from "./HttpClient";
 
 const API_URL = "http://localhost:8000/api/questions/";
 
 export const QuestionService = {
   async getAll(): Promise<Question[]> {
-    const res = await fetch(API_URL);
-    return await res.json();
+    return await httpClient.get(API_URL);
   },
 
   async getById(id: number): Promise<Question | null> {
-    const res = await fetch(`${API_URL}${id}/`);
-    if (!res.ok) return null;
-    return await res.json();
+    try {
+      return await httpClient.get(`${API_URL}${id}/`);
+    } catch {
+      return null;
+    }
   },
 
   async create(question: Omit<Question, "id">): Promise<Question> {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(question),
-    });
-    return await res.json();
+    return await httpClient.post(API_URL, question);
   },
 
   async update(question: Question): Promise<Question> {
-    const res = await fetch(`${API_URL}${question.id}/`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(question),
-    });
-    return await res.json();
+    return await httpClient.put(`${API_URL}${question.id}/`, question);
   },
 
   async remove(id: number): Promise<void> {
-    await fetch(`${API_URL}${id}/`, {
-      method: "DELETE",
-    });
+    await httpClient.delete(`${API_URL}${id}/`);
   },
 };
