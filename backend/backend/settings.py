@@ -25,7 +25,11 @@ SECRET_KEY = 'django-insecure-sk(2-88&hw#81w(m@pow=^4d6(xnro#8b68#$pkskxma2-!k@_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".app.github.dev",
+]
 
 
 # Application definition
@@ -44,6 +48,10 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.app.github.dev",
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

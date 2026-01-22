@@ -1,7 +1,7 @@
 import { Question } from "../models/Question";
 import { httpClient } from "./HttpClient";
 
-const API_URL = "http://localhost:8000/api/questions/";
+const API_URL = "https://glowing-memory-7vp59x5xjv7v3xwvq-8000.app.github.dev/api/questions/";
 
 export const QuestionService = {
   async getAll(): Promise<Question[]> {

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'https://glowing-memory-7vp59x5xjv7v3xwvq-8000.app.github.dev/api';
 
 export interface LoginResponse {
   access: string;
