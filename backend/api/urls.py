@@ -1,7 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import QuestionViewSet
-from .views_auth import RegisterView, CustomTokenObtainPairView, LogoutView
+from .views import QuestionViewSet, RegisterView, CustomTokenObtainPairView, LogoutView
 
 router = DefaultRouter()
 router.register("questions", QuestionViewSet)
