@@ -7,6 +7,7 @@ export interface LoginResponse {
 
 export interface AuthContextType {
   isAuthenticated: boolean;
+  loading: boolean; 
   token: string | null;
   username: string | null;
   login: (username: string, password: string) => Promise<void>;

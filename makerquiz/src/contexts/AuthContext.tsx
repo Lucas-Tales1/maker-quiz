@@ -7,8 +7,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+useEffect(() => {
     const storedToken = AuthService.getToken();
     const storedUsername = AuthService.getUsername();
     
@@ -17,6 +18,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAuthenticated(true);
       setUsername(storedUsername);
     }
+    // Finaliza o carregamento após verificar o storage
+    setLoading(false);
   }, []);
 
   const login = async (username: string, password: string) => {
@@ -42,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, token, username, login, register, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, token, username, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
